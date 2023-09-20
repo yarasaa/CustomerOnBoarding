@@ -17,8 +17,8 @@ using Prometheus;
 
 
 var builder = WebApplication.CreateBuilder(args);
-await builder.Configuration.AddVaultSecrets("amorphie-secretstore", new string[] { "amorphie-template" });
-var postgreSql = builder.Configuration["templatedb"];
+await builder.Configuration.AddVaultSecrets("amorphie-secretstore", new string[] { "amorphie-secretstore" });
+var postgreSql = builder.Configuration["PostgreSql"];
 
 // If you use AutoInclude in context you should add  ReferenceHandler.IgnoreCycles to avoid circular load
 builder.Services.Configure<JsonOptions>(options =>
