@@ -14,6 +14,7 @@ using amorphie.template.core.Search;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
+using Azure.Core;
 
 namespace amorphie.template.Module;
 
@@ -42,7 +43,8 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
         // routeGroupBuilder.MapGet("/custom-method", CustomMethod);
         routeGroupBuilder.MapPost("/consumer", async (
             [FromServices] DaprClient daprClient,
-            // [FromBody] NFCMobDto message,
+       [FromServices] TemplateDbContext context,
+
             HttpContext httpContext
         ) =>
         {
@@ -51,13 +53,38 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
             using (var reader = new StreamReader(httpContext.Request.Body))
             {
                 var body = reader.ReadToEnd();
+                var nfcMobDto = JsonConvert.DeserializeObject<NFCMobDto>(body);
+                if (nfcMobDto != null && nfcMobDto.message.data != null)
+                {
+                    long citizenshipNumber = await context
+                                                .Set<DepositMobApproval>()
+                                                .Where(
+                                                    x =>
+                                                        x.Iban.Equals(nfcMobDto.message.data.TEXT_04)
+                                                        && x.FullName.Equals(nfcMobDto.message.data.TEXT_03)
+                                                        && x.IsMobApproved == false
+                                                ).Select(x => x.CitizenshipNumber).FirstOrDefaultAsync();
 
-                // Do something
+                    if (citizenshipNumber > 0)
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            client.BaseAddress = new Uri(dodgeGatewayApiServiceUrl);
+
+                            var jsonObject = new
+                            {
+                                CitizenshipNumber = citizenshipNumber
+                            };
+                            string jsonData = JsonConvert.SerializeObject(jsonObject);
+
+                            var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
+                            await client.PostAsync(dodgeGatewayApiServiceResourceUrl, content);
+                        }
+                    }
+                }
             }
-            // var nfcMobDto = JsonConvert.DeserializeObject<NFCMobDto>(message);
-            // Console.WriteLine($"Received message - Type: {nfcMobDto.type}, FullName: {nfcMobDto.data.TEXT_03}, IBAN: {nfcMobDto.data.TEXT_04}");
-            Console.WriteLine("message");
-        }).WithTopic("kafka-binding", "EFT.IncomingFailure.MASTER");
+
+        }).WithTopic("kafka-binding", "EFT.IncomingFailure.MASTER", true);
 
         // routeGroupBuilder.MapGet("/search", SearchMethod);
 
@@ -70,50 +97,38 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
     //     daprClient.PublishEventAsync("customeronboarding-pubsub", "EFT.IncomingFailure.MASTER");
     // }
 
-    protected async ValueTask SearchMethod(
-       [FromServices] TemplateDbContext context,
-       [FromServices] IMapper mapper,
-       [AsParameters] DepositMobApprovalSearch userSearch,
-       HttpClient httpClient
-   )
-    {
-        long citizenshipNumber = await context
-            .Set<DepositMobApproval>()
-            .Where(
-                x =>
-                    x.Iban.Equals(userSearch.Iban)
-                    && x.FullName.Equals(userSearch.FullName)
-                    && x.IsMobApproved == false
-            ).Select(x => x.CitizenshipNumber).FirstOrDefaultAsync();
+    //     private async Task SearchMethod(
+    //        [FromServices] TemplateDbContext context,
+    //        [FromServices] IMapper mapper,
+    //        [AsParameters] DepositMobApprovalSearch userSearch,
+    //        HttpClient httpClient
+    //    )
+    //     {
+    //         long citizenshipNumber = await context
+    //             .Set<DepositMobApproval>()
+    //             .Where(
+    //                 x =>
+    //                     x.Iban.Equals(userSearch.Iban)
+    //                     && x.FullName.Equals(userSearch.FullName)
+    //                     && x.IsMobApproved == false
+    //             ).Select(x => x.CitizenshipNumber).FirstOrDefaultAsync();
 
-        if (citizenshipNumber > 0)
-        {
-            using (var client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(dodgeGatewayApiServiceUrl);
+    //         if (citizenshipNumber > 0)
+    //         {
+    //             using (var client = new HttpClient())
+    //             {
+    //                 client.BaseAddress = new Uri(dodgeGatewayApiServiceUrl);
 
-                var jsonObject = new
-                {
-                    CitizenshipNumber = citizenshipNumber
-                };
-                string jsonData = JsonConvert.SerializeObject(jsonObject);
+    //                 var jsonObject = new
+    //                 {
+    //                     CitizenshipNumber = citizenshipNumber
+    //                 };
+    //                 string jsonData = JsonConvert.SerializeObject(jsonObject);
 
-                var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
-                await client.PostAsync(dodgeGatewayApiServiceResourceUrl, content);
-            }
-        }
-    }
-
-    // protected override ValueTask<IResult> UpsertMethod([FromServices] IMapper mapper, [FromServices] FluentValidation.IValidator<Student> validator, [FromServices] TemplateDbContext context, [FromServices] IBBTIdentity bbtIdentity, [FromBody] StudentDTO data, HttpContext httpContext, CancellationToken token)
-    // {
-    //     return base.UpsertMethod(mapper, validator, context, bbtIdentity, data, httpContext, token);
-    // }
-
-    [AddSwaggerParameter("Test Required", ParameterLocation.Header, true)]
-    protected async ValueTask<IResult> CustomMethod()
-    {
-        return Results.Ok();
-    }
-
+    //                 var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
+    //                 await client.PostAsync(dodgeGatewayApiServiceResourceUrl, content);
+    //             }
+    //         }
+    //     }
 
 }

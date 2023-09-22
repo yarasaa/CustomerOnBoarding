@@ -44,7 +44,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
 builder.Services.AddDbContext<TemplateDbContext>
-    (options => options.UseSqlServer(dodgeBusiness, b => b.MigrationsAssembly("amorphie.template.data")));
+    (options => options.UseNpgsql(dodgeBusiness, b => b.MigrationsAssembly("amorphie.template.data")));
 
 
 var app = builder.Build();

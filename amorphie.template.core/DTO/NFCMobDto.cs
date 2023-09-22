@@ -5,25 +5,25 @@ using System.Threading.Tasks;
 
 namespace amorphie.template.core.DTO
 {
-    public class NFCMobDto
-    {
-        /// <summary>
-        /// Tur
-        /// </summary>
-        public string? type { get; set; }
-        public Data? data { get; set; }
-    }
+    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
     public class Data
     {
-        /// <summary>
-        /// IBAN
-        /// </summary>
-        public string? TEXT_03 { get; set; }
-
-        /// <summary>
-        /// Ad Soyad
-        /// </summary>
-        public string? TEXT_04 { get; set; }
+        public string TEXT_03 { get; set; }
+        public string TEXT_04 { get; set; }
     }
+
+   
+    public class Message
+    {
+        public Data data { get; set; }
+    }
+
+    public class NFCMobDto
+    {
+        public string type { get; set; }
+        public Message message { get; set; }
+    }
+
+
 }

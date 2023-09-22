@@ -31,7 +31,7 @@ class TemplateDbContextFactory : IDesignTimeDbContextFactory<TemplateDbContext>
 
 
         var connStr = "Host=localhost:5432;Database=TemplateDb;Username=postgres;Password=postgres";
-        builder.UseSqlServer(connStr);
+        builder.UseNpgsql(connStr);
         builder.EnableSensitiveDataLogging();
         return new TemplateDbContext(builder.Options);
     }
