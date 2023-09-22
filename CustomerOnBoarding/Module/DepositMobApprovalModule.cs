@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using amorphie.template.core.Model;
 using amorphie.core.Module.minimal_api;
 using amorphie.template.data;
@@ -11,6 +12,8 @@ using System.Text;
 using AutoMapper;
 using amorphie.template.core.Search;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Nodes;
+using Newtonsoft.Json.Linq;
 
 namespace amorphie.template.Module;
 
@@ -39,16 +42,22 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
         // routeGroupBuilder.MapGet("/custom-method", CustomMethod);
         routeGroupBuilder.MapPost("/consumer", async (
             [FromServices] DaprClient daprClient,
+            // [FromBody] NFCMobDto message,
             HttpContext httpContext
-        // [FromBody] string message
         ) =>
         {
             // daprClient.PublishEventAsync("customeronboarding-pubsub", "EFT.IncomingFailure.MASTER");
 
+            using (var reader = new StreamReader(httpContext.Request.Body))
+            {
+                var body = reader.ReadToEnd();
+
+                // Do something
+            }
             // var nfcMobDto = JsonConvert.DeserializeObject<NFCMobDto>(message);
             // Console.WriteLine($"Received message - Type: {nfcMobDto.type}, FullName: {nfcMobDto.data.TEXT_03}, IBAN: {nfcMobDto.data.TEXT_04}");
-            Console.WriteLine("test");
-        }).WithTopic("kafka-binding","EFT.IncomingFailure.MASTER");
+            Console.WriteLine("message");
+        }).WithTopic("kafka-binding", "EFT.IncomingFailure.MASTER");
 
         // routeGroupBuilder.MapGet("/search", SearchMethod);
 
