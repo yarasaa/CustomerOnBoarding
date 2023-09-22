@@ -12,7 +12,7 @@ public static class DbInitializer
     {
         context.Database.EnsureCreated();
 
-        // Look for any students.
+        // Look for any students. Test
         if (context.DepositMobApproval.Any())
         {
             return; // DB has been seeded
