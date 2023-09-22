@@ -1,0 +1,31 @@
+# apiVersion: dapr.io/v1alpha1
+# kind: Component
+# metadata:
+#   name: customeronboarding-pubsub
+# spec:
+#   type: pubsub.kafka
+#   version: v1
+#   metadata:
+#   - name: brokers
+#     value: "localhost:9092"
+#   - name: authRequired
+#     value: "false"
+#   - name: authType
+#     value: "none"
+#   - name: disableTls
+#     value: "true"
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kafka-binding
+spec:
+  type: pubsub.kafka
+  metadata:
+      # Kafka broker connection setting
+    - name: brokers
+      # Comma separated list of kafka brokers
+      value: "localhost:9093"
+      # Enable auth. Default is "false"
+    - name: authType
+      value: "none"

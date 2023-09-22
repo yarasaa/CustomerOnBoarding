@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "amorphie.template.core", "a
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "amorphie.template.data", "amorphie.template.data\amorphie.template.data.csproj", "{F5537A5B-4B4B-4533-BC2F-8C0D87ED70B8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "amorphie.template.worker", "amorphie.template.worker\amorphie.template.worker.csproj", "{272D933D-2463-4F9B-9F07-228557A08368}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

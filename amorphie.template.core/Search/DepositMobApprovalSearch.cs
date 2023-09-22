@@ -6,4 +6,8 @@ using amorphie.core.Base;
 
 namespace amorphie.template.core.Search;
 
-public class StudentSearch : DtoSearchBase { }
+public class DepositMobApprovalSearch : DtoSearchBase
+{
+    public string Iban { get; set; }
+    public string FullName { get; set; }
+}

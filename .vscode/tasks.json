@@ -29,6 +29,33 @@
             "label": "daprd-down-CustomerOnBoarding",
             "type": "daprd-down",
             "dependsOn": "stop-mocks",
+        },
+        {
+            "label": "build-amorphie-template-worker",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/amorphie.template.worker/amorphie.template.worker.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "appId": "amorphie-template-worker",
+            "appPort": 4202,
+            "httpPort": 42030,
+            "grpcPort": 42031,
+            "label": "dapr-debug-amorphie-template-worker",
+            "type": "dapr",
+            "dependsOn": "build-amorphie-template-worker",
+            "componentsPath": "Dapr/Components"
+        },
+        {
+            "appId": "amorphie-template-worker",
+            "label": "daprd-down-amorphie-template-worker",
+            "type": "daprd-down"
         }
     ]
 }

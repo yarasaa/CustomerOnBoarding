@@ -6,12 +6,12 @@ using FluentValidation;
 using amorphie.template.core.Model;
 
 namespace amorphie.template.Validator;
-    public sealed class StudentValidator : AbstractValidator<Student>
+    public sealed class DepositMobApprovalValidator : AbstractValidator<DepositMobApproval>
     {
-        public StudentValidator()
+        public DepositMobApprovalValidator()
         {
-            RuleFor(x => x.FirstMidName).NotNull();
-            RuleFor(x => x.LastName).MinimumLength(10);
+            RuleFor(x => x.Iban).NotNull();
+            RuleFor(x => x.FullName).NotNull();
         }
     }
 

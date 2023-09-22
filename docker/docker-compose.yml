@@ -1,4 +1,4 @@
-version: "3.9"
+version: "2"
 services:
 
   redis:
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
     networks:
       - bbt-development
-      
+
   zeebe:
     container_name: bbt-template-zeebe
     image: camunda/zeebe:latest
@@ -46,12 +46,12 @@ services:
     networks:
       - bbt-development
 
-  operate: 
+  operate:
     container_name: bbt-template-zeebe-operate
     image: camunda/operate:latest
     ports:
       - "8081:8080"
-    environment: 
+    environment:
       - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=bbt-template-zeebe:26500
       - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://bbt-template-elastic:9200
       - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://bbt-template-elastic:9200
@@ -102,17 +102,17 @@ services:
     ports:
       - 9200:9200
 
-  kibana:
-    container_name: bbt-template-kibana
-    image: kibana:8.8.1
-    environment:
-      - ELASTICSEARCH_HOSTS=http://bbt-template-elastic:9200
-    networks:
-      - bbt-development
-    depends_on:
-      - elastic
-    ports:
-      - 5601:5601
+  # kibana:
+  #   container_name: bbt-template-kibana
+  #   image: kibana:8.8.1
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://bbt-template-elastic:9200
+  #   networks:
+  #     - bbt-development
+  #   depends_on:
+  #     - elastic
+  #   ports:
+  #     - 5601:5601
 
   vault:
     container_name: bbt-template-vault
@@ -141,9 +141,9 @@ services:
       - vault
     volumes:
       - ./vault.sh:/usr/local/bin/prepopulate_vault.sh
-    command: ["sh", "-c", "/usr/local/bin/prepopulate_vault.sh"]
+    command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
     networks:
-       - bbt-development
+      - bbt-development
 
   zipkin:
     container_name: bbt-template-zipkin
@@ -176,12 +176,92 @@ services:
       - prometheus
 
   placement:
-      image: daprio/dapr:latest
-      command: ["./placement", "-port", "50006", "log-level", "debug", "--log-as-json"]
-      ports:
+    image: daprio/dapr:latest
+    command:
+      [
+        "./placement",
+        "-port",
+        "50006",
+        "log-level",
+        "debug",
+        "--log-as-json"
+      ]
+    ports:
       - "50006:50006"
-      networks:
+    networks:
       - bbt-development
+
+  zookeeper:
+    container_name: zookeeper
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    container_name: kafka
+    image: docker.io/bitnami/kafka:2
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+      - zookeeper
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "18080:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    depends_on:
+      - kafka
+      - zookeeper
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect
+    container_name: kafka-connect
+    depends_on:
+      - kafka
+    ports:
+      - "8083:8083"
+    environment:
+      - CONNECT_BOOTSTRAP_SERVERS=kafka:9092
+      - CONNECT_REST_ADVERTISED_HOST_NAME=kafka-connect
+      - CONNECT_REST_PORT=8083
+      - CONNECT_GROUP_ID=compose-connect-group
+      - CONNECT_CONFIG_STORAGE_TOPIC=connect-configs
+      - CONNECT_OFFSET_STORAGE_TOPIC=connect-offsets
+      - CONNECT_STATUS_STORAGE_TOPIC=connect-status
+      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+    volumes:
+      - ./connect-configs:/etc/kafka/connect
+    command:
+      - bash
+      - -c
+      - |
+        confluent-hub install --no-prompt couchbase/kafka-connect-couchbase:4.1.12 \
+        && confluent-hub install --no-prompt redis/redis-enterprise-kafka:6.7.4 \
+        && /etc/confluent/docker/run
+        && confluent local services connect connector load test-couchbase-source --config /etc/kafka/connect/quickstart-couchbase-source.properties \
+        && confluent local services connect connector load test-couchbase-sink --config /etc/kafka/connect/quickstart-couchbase-sink.properties
 
 networks:
   bbt-development:
@@ -195,4 +275,5 @@ volumes:
   dapr:
   grafana-data:
   prometheus:
+
 

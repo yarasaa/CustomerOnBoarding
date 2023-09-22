@@ -31,7 +31,7 @@ class TemplateDbContextFactory : IDesignTimeDbContextFactory<TemplateDbContext>
 
 
         var connStr = "Host=localhost:5432;Database=TemplateDb;Username=postgres;Password=postgres";
-        builder.UseNpgsql(connStr);
+        builder.UseSqlServer(connStr);
         builder.EnableSensitiveDataLogging();
         return new TemplateDbContext(builder.Options);
     }
@@ -42,7 +42,6 @@ public class TemplateDbContext : DbContext
     public TemplateDbContext(DbContextOptions<TemplateDbContext> options)
         : base(options) { }
 
-    public DbSet<Student> Students { get; set; }
-    public DbSet<Enrollment> Enrollments { get; set; }
-    public DbSet<Course> Courses { get; set; }
+    public DbSet<DepositMobApproval> DepositMobApproval { get; set; }
+
 }

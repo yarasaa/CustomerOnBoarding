@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using amorphie.core.Extension;
-using amorphie.core.HealthCheck;
 using amorphie.core.Identity;
 using amorphie.core.Swagger;
 using amorphie.template.data;
@@ -11,14 +10,13 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.Replication;
 using Prometheus;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
 await builder.Configuration.AddVaultSecrets("amorphie-secretstore", new string[] { "amorphie-secretstore" });
-var postgreSql = builder.Configuration["PostgreSql"];
+var dodgeBusiness = builder.Configuration["Postgre"];
 
 // If you use AutoInclude in context you should add  ReferenceHandler.IgnoreCycles to avoid circular load
 builder.Services.Configure<JsonOptions>(options =>
@@ -40,13 +38,13 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<AddSwaggerParameterFilter>();
 });
 
-builder.Services.AddValidatorsFromAssemblyContaining<StudentValidator>(includeInternalTypes: true);
+builder.Services.AddValidatorsFromAssemblyContaining<DepositMobApprovalValidator>(includeInternalTypes: true);
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
 
 builder.Services.AddDbContext<TemplateDbContext>
-    (options => options.UseNpgsql(postgreSql, b => b.MigrationsAssembly("amorphie.template.data")));
+    (options => options.UseSqlServer(dodgeBusiness, b => b.MigrationsAssembly("amorphie.template.data")));
 
 
 var app = builder.Build();
@@ -55,8 +53,8 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<TemplateDbContext>();
 
-db.Database.Migrate();
-DbInitializer.Initialize(db);
+// db.Database.Migrate();
+// DbInitializer.Initialize(db);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -68,6 +66,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.AddRoutes();
+app.UseCloudEvents();
+app.MapSubscribeHandler();
 
 app.MapHealthChecks("/healthz", new HealthCheckOptions
 {
