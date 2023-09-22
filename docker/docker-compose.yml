@@ -192,77 +192,160 @@ services:
       - bbt-development
 
   zookeeper:
-    container_name: zookeeper
-    image: docker.io/bitnami/zookeeper:3.7
+
+    image: confluentinc/cp-zookeeper
+
+    container_name: boarding-zookeeper
+
     ports:
+
       - "2181:2181"
+
     environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+
+      - ZOOKEEPER_CLIENT_PORT=2181
+
+      - ZOOKEEPER_TICK_TIME=2000
+
+ 
 
   kafka:
-    container_name: kafka
-    image: docker.io/bitnami/kafka:2
-    ports:
-      - "9092:9092"
-      - "9093:9093"
-    environment:
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
-      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
+
+    image: confluentinc/cp-kafka
+
+    container_name: boarding-kafka
+
     depends_on:
+
       - zookeeper
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui
-    container_name: kafka-ui
     ports:
-      - "18080:8080"
-    restart: always
+
+      - "9092:9092"
+
+      - "9997:9997"
+
     environment:
-      - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
-    depends_on:
-      - kafka
-      - zookeeper
+
+      KAFKA_BROKER_ID: 1
+
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://boarding-kafka:29092,PLAINTEXT_HOST://localhost:9092
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+      KAFKA_JMX_PORT: 9997
+
+      KAFKA_JMX_HOSTNAME: kafka
+
+ 
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect
-    container_name: kafka-connect
-    depends_on:
-      - kafka
-    ports:
-      - "8083:8083"
-    environment:
-      - CONNECT_BOOTSTRAP_SERVERS=kafka:9092
-      - CONNECT_REST_ADVERTISED_HOST_NAME=kafka-connect
-      - CONNECT_REST_PORT=8083
-      - CONNECT_GROUP_ID=compose-connect-group
-      - CONNECT_CONFIG_STORAGE_TOPIC=connect-configs
-      - CONNECT_OFFSET_STORAGE_TOPIC=connect-offsets
-      - CONNECT_STATUS_STORAGE_TOPIC=connect-status
-      - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
-      - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-      - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-    volumes:
-      - ./connect-configs:/etc/kafka/connect
-    command:
-      - bash
-      - -c
-      - |
-        confluent-hub install --no-prompt couchbase/kafka-connect-couchbase:4.1.12 \
-        && confluent-hub install --no-prompt redis/redis-enterprise-kafka:6.7.4 \
-        && /etc/confluent/docker/run
-        && confluent local services connect connector load test-couchbase-source --config /etc/kafka/connect/quickstart-couchbase-source.properties \
-        && confluent local services connect connector load test-couchbase-sink --config /etc/kafka/connect/quickstart-couchbase-sink.properties
 
+      image: confluentinc/cp-kafka-connect
+
+      container_name: boarding-kafka-connect
+
+      depends_on:
+
+        - kafka
+
+      ports:
+
+        - "8083:8083"
+
+      environment:
+
+        - CONNECT_BOOTSTRAP_SERVERS=boarding-kafka:29092
+
+        - CONNECT_REST_ADVERTISED_HOST_NAME=boarding-kafka-connect
+
+        - CONNECT_REST_PORT=8083
+
+        - CONNECT_GROUP_ID=compose-connect-group
+
+        - CONNECT_CONFIG_STORAGE_TOPIC=connect-configs
+
+        - CONNECT_OFFSET_STORAGE_TOPIC=connect-offsets
+
+        - CONNECT_STATUS_STORAGE_TOPIC=connect-status
+
+        - CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1
+
+        - CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1
+
+        - CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1
+
+        - CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+        - CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+        - CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+        - CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+      command:
+
+        - bash
+
+        - -c
+
+        - |
+
+          confluent-hub install --no-prompt couchbase/kafka-connect-couchbase:4.1.12 \
+
+          && confluent-hub install --no-prompt redis/redis-enterprise-kafka:6.7.4 \
+
+          && /etc/confluent/docker/run
+
+          && confluent local services connect connector load test-couchbase-source --config /etc/kafka/connect/quickstart-couchbase-source.properties \
+
+          && confluent local services connect connector load test-couchbase-sink --config /etc/kafka/connect/quickstart-couchbase-sink.properties
+
+ 
+
+ 
+
+  kafka-ui:
+
+    container_name: boarding-kafka-ui
+
+    image: provectuslabs/kafka-ui:latest
+
+    ports:
+
+      - 8080:8080
+
+    depends_on:
+
+      - kafka
+
+    environment:
+
+      KAFKA_CLUSTERS_0_NAME: local
+
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: boarding-kafka:29092
+
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: first
+
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://boarding-kafka-connect:8083
+
+      DYNAMIC_CONFIG_ENABLED: 'true'
+
+ 
 networks:
   bbt-development:
     external: true

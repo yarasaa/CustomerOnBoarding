@@ -16,16 +16,31 @@
 #     value: "true"
 
 apiVersion: dapr.io/v1alpha1
+
 kind: Component
+
 metadata:
+
   name: kafka-binding
+
 spec:
+
   type: pubsub.kafka
+
   metadata:
+
       # Kafka broker connection setting
+
     - name: brokers
+
       # Comma separated list of kafka brokers
-      value: "localhost:9093"
+
+      value: "localhost:9092"
+
       # Enable auth. Default is "false"
+
     - name: authType
+
       value: "none"
+
+ 
