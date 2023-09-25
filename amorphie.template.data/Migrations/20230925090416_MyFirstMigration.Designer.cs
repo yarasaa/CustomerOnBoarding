@@ -12,8 +12,8 @@ using amorphie.template.data;
 namespace amorphie.template.data.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20230922142238_MyFirstMigration2")]
-    partial class MyFirstMigration2
+    [Migration("20230925090416_MyFirstMigration")]
+    partial class MyFirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

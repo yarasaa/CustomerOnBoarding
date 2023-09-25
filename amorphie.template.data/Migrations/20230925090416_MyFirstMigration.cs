@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace amorphie.template.data.Migrations
 {
     /// <inheritdoc />
-    public partial class MyFirstMigration2 : Migration
+    public partial class MyFirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
