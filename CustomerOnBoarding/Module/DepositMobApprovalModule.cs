@@ -99,14 +99,16 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
 
                                     clientGateWay.DefaultRequestHeaders.Add("Authorization", token.TokenType + " " + token.AccessToken);
 
-                                    var jsonObject = new
-                                    {
-                                        CitizenshipNumber = citizenshipNumber
-                                    };
-                                    string jsonData = JsonConvert.SerializeObject(jsonObject);
+                                    // var jsonObject = new
+                                    // {
+                                    //     CitizenshipNumber = citizenshipNumber
+                                    // };
+                                    var parameters = new Dictionary<string, string> { { "citizenshipNumber", citizenshipNumber.ToString() } };
+                                    var encodedContent = new FormUrlEncodedContent(parameters);
+                                    // string jsonData = JsonConvert.SerializeObject(jsonObject);
 
-                                    var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
-                                    await clientGateWay.PostAsync(dodgeGatewayApiServiceResourceUrl, content);
+                                    // var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
+                                    await clientGateWay.PostAsync(dodgeGatewayApiServiceResourceUrl, encodedContent);
                                 }
 
                             }
