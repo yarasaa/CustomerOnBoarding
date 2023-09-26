@@ -24,72 +24,72 @@ services:
     networks:
       - bbt-development
 
-  zeebe:
-    container_name: bbt-template-zeebe
-    image: camunda/zeebe:latest
-    environment:
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://bbt-template-elastic:9200
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
-      - ZEEBE_LOG_LEVEL=debug
-      - ZEEBE_REDIS_REMOTE_ADDRESS=redis://bbt-template-redis:6379
-      - ZEEBE_REDIS_TIME_TO_LIVE_IN_SECONDS=900
-    depends_on:
-      - elastic
-      - redis
-    ports:
-      - "26500:26500"
-      - "9600:9600"
-    volumes:
-      - ./config/zeebe-config.yaml:/usr/local/zeebe/config/application.yaml
-      - ./zeebe-exporters/zeebe-redis-exporter-0.9.2-jar-with-dependencie.jar:/usr/local/zeebe/exporters/zeebe-redis-exporter-jar-with-dependencies.jar
-    networks:
-      - bbt-development
+  # zeebe:
+  #   container_name: bbt-template-zeebe
+  #   image: camunda/zeebe:latest
+  #   environment:
+  #     - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_CLASSNAME=io.camunda.zeebe.exporter.ElasticsearchExporter
+  #     - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_URL=http://bbt-template-elastic:9200
+  #     - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
+  #     - ZEEBE_LOG_LEVEL=debug
+  #     - ZEEBE_REDIS_REMOTE_ADDRESS=redis://bbt-template-redis:6379
+  #     - ZEEBE_REDIS_TIME_TO_LIVE_IN_SECONDS=900
+  #   depends_on:
+  #     - elastic
+  #     - redis
+  #   ports:
+  #     - "26500:26500"
+  #     - "9600:9600"
+  #   volumes:
+  #     - ./config/zeebe-config.yaml:/usr/local/zeebe/config/application.yaml
+  #     - ./zeebe-exporters/zeebe-redis-exporter-0.9.2-jar-with-dependencie.jar:/usr/local/zeebe/exporters/zeebe-redis-exporter-jar-with-dependencies.jar
+  #   networks:
+  #     - bbt-development
 
-  operate:
-    container_name: bbt-template-zeebe-operate
-    image: camunda/operate:latest
-    ports:
-      - "8081:8080"
-    environment:
-      - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=bbt-template-zeebe:26500
-      - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://bbt-template-elastic:9200
-      - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://bbt-template-elastic:9200
-    networks:
-      - bbt-development
-    depends_on:
-      - zeebe
-      - elastic
+  # operate:
+  #   container_name: bbt-template-zeebe-operate
+  #   image: camunda/operate:latest
+  #   ports:
+  #     - "8081:8080"
+  #   environment:
+  #     - CAMUNDA_OPERATE_ZEEBE_GATEWAYADDRESS=bbt-template-zeebe:26500
+  #     - CAMUNDA_OPERATE_ELASTICSEARCH_URL=http://bbt-template-elastic:9200
+  #     - CAMUNDA_OPERATE_ZEEBEELASTICSEARCH_URL=http://bbt-template-elastic:9200
+  #   networks:
+  #     - bbt-development
+  #   depends_on:
+  #     - zeebe
+  #     - elastic
 
-  postgres:
-    container_name: bbt-template-postgres
-    image: postgres:latest
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      PGDATA: /data/postgres
-    volumes:
-      - postgres:/data/postgres
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-    networks:
-      - bbt-development
+  # postgres:
+  #   container_name: bbt-template-postgres
+  #   image: postgres:latest
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     PGDATA: /data/postgres
+  #   volumes:
+  #     - postgres:/data/postgres
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+  #   networks:
+  #     - bbt-development
 
-  pgadmin:
-    container_name: bbt-template-pgadmin
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "info@info.com"
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-      - pgadmin:/var/lib/pgadmin
-    ports:
-      - "5502:80"
-    restart: unless-stopped
-    networks:
-      - bbt-development
+  # pgadmin:
+  #   container_name: bbt-template-pgadmin
+  #   image: dpage/pgadmin4:latest
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: "info@info.com"
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   volumes:
+  #     - pgadmin:/var/lib/pgadmin
+  #   ports:
+  #     - "5502:80"
+  #   restart: unless-stopped
+  #   networks:
+  #     - bbt-development
 
   elastic:
     container_name: bbt-template-elastic
@@ -145,51 +145,51 @@ services:
     networks:
       - bbt-development
 
-  zipkin:
-    container_name: bbt-template-zipkin
-    image: openzipkin/zipkin:latest
-    ports:
-      - "9411:9411"
-    networks:
-      - bbt-development
+  # zipkin:
+  #   container_name: bbt-template-zipkin
+  #   image: openzipkin/zipkin:latest
+  #   ports:
+  #     - "9411:9411"
+  #   networks:
+  #     - bbt-development
 
-  prometheus:
-    container_name: bbt-template-prometheus
-    image: prom/prometheus:latest
-    command:
-      - "--config.file=/etc/prometheus.yml"
-    volumes:
-      - ./config/prometheus:/etc
-    ports:
-      - "9090:9090"
-    networks:
-      - bbt-development
+  # prometheus:
+  #   container_name: bbt-template-prometheus
+  #   image: prom/prometheus:latest
+  #   command:
+  #     - "--config.file=/etc/prometheus.yml"
+  #   volumes:
+  #     - ./config/prometheus:/etc
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - bbt-development
 
-  grafana:
-    container_name: bbt-template-grafana
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    networks:
-      - bbt-development
-    depends_on:
-      - prometheus
+  # grafana:
+  #   container_name: bbt-template-grafana
+  #   image: grafana/grafana:latest
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - bbt-development
+  #   depends_on:
+  #     - prometheus
 
-  placement:
-    image: daprio/dapr:latest
-    command:
-      [
-        "./placement",
-        "-port",
-        "50006",
-        "log-level",
-        "debug",
-        "--log-as-json"
-      ]
-    ports:
-      - "50006:50006"
-    networks:
-      - bbt-development
+  # placement:
+  #   image: daprio/dapr:latest
+  #   command:
+  #     [
+  #       "./placement",
+  #       "-port",
+  #       "50006",
+  #       "log-level",
+  #       "debug",
+  #       "--log-as-json"
+  #     ]
+  #   ports:
+  #     - "50006:50006"
+  #   networks:
+  #     - bbt-development
 
   zookeeper:
 
@@ -206,8 +206,6 @@ services:
       - ZOOKEEPER_CLIENT_PORT=2181
 
       - ZOOKEEPER_TICK_TIME=2000
-
- 
 
   kafka:
 
@@ -250,8 +248,6 @@ services:
       KAFKA_JMX_PORT: 9997
 
       KAFKA_JMX_HOSTNAME: kafka
-
- 
 
   kafka-connect:
 
@@ -314,10 +310,6 @@ services:
           && confluent local services connect connector load test-couchbase-source --config /etc/kafka/connect/quickstart-couchbase-source.properties \
 
           && confluent local services connect connector load test-couchbase-sink --config /etc/kafka/connect/quickstart-couchbase-sink.properties
-
- 
-
- 
 
   kafka-ui:
 

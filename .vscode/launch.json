@@ -25,37 +25,37 @@
                 "uriFormat": "%s/swagger/"
             }
         },
-        {
-            "name": "amorphie-template-worker",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "dapr-debug-amorphie-template-worker",
-            "program": "${workspaceFolder}/amorphie.template.worker/bin/Debug/net7.0/amorphie.template.worker.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/amorphie.template.worker",
-            "stopAtEntry": false,
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://localhost:4202",
-                "DAPR_HTTP_PORT": "42030",
-                "DAPR_GRPC_PORT": "42031",
-                "DAPR_SECRET_STORE_NAME": "transaction-secretstore",
-                "DAPR_STATE_STORE_NAME": "transaction-cache"
-            },
-            "postDebugTask": "daprd-down-amorphie-template-worker",
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
-                "uriFormat": "%s/swagger/"
-            }
-        }
+        // {
+        //     "name": "amorphie-template-worker",
+        //     "type": "coreclr",
+        //     "request": "launch",
+        //     "preLaunchTask": "dapr-debug-amorphie-template-worker",
+        //     "program": "${workspaceFolder}/amorphie.template.worker/bin/Debug/net7.0/amorphie.template.worker.dll",
+        //     "args": [],
+        //     "cwd": "${workspaceFolder}/amorphie.template.worker",
+        //     "stopAtEntry": false,
+        //     "env": {
+        //         "ASPNETCORE_ENVIRONMENT": "Development",
+        //         "ASPNETCORE_URLS": "http://localhost:4202",
+        //         "DAPR_HTTP_PORT": "42030",
+        //         "DAPR_GRPC_PORT": "42031",
+        //         "DAPR_SECRET_STORE_NAME": "transaction-secretstore",
+        //         "DAPR_STATE_STORE_NAME": "transaction-cache"
+        //     },
+        //     "postDebugTask": "daprd-down-amorphie-template-worker",
+        //     "serverReadyAction": {
+        //         "action": "openExternally",
+        //         "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        //         "uriFormat": "%s/swagger/"
+        //     }
+        // }
     ],
     "compounds": [
         {
             "name": "Halay Mode",
             "configurations": [
                 "CustomerOnBoarding",
-                "amorphie-template-worker"
+                // "amorphie-template-worker"
             ],
             "stopAll": true
         }
