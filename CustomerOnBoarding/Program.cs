@@ -16,7 +16,7 @@ using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 await builder.Configuration.AddVaultSecrets("amorphie-secretstore", new string[] { "amorphie-secretstore" });
-var dodgeBusiness = builder.Configuration["Postgre"];
+var dodgeBusiness = builder.Configuration["DodgeBusiness"];
 
 // If you use AutoInclude in context you should add  ReferenceHandler.IgnoreCycles to avoid circular load
 builder.Services.Configure<JsonOptions>(options =>
@@ -44,7 +44,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 
 builder.Services.AddDbContext<TemplateDbContext>
-    (options => options.UseNpgsql(dodgeBusiness, b => b.MigrationsAssembly("amorphie.template.data")));
+    (options => options.UseSqlServer(dodgeBusiness, b => b.MigrationsAssembly("amorphie.template.data")));
 
 
 var app = builder.Build();
