@@ -1,21 +1,11 @@
-using System.Collections.Generic;
 using amorphie.template.core.Model;
 using amorphie.core.Module.minimal_api;
 using amorphie.template.data;
 using Microsoft.AspNetCore.Mvc;
-using amorphie.core.Swagger;
-using Microsoft.OpenApi.Models;
 using amorphie.template.core.DTO;
 using Dapr.Client;
 using Newtonsoft.Json;
-using System.Text;
-using AutoMapper;
-using amorphie.template.core.Search;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Nodes;
-using Newtonsoft.Json.Linq;
-using Azure.Core;
-using Google.Protobuf.WellKnownTypes;
 using System.Net;
 
 namespace amorphie.template.Module;
