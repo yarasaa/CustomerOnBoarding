@@ -98,7 +98,7 @@ public sealed class DepositMobApprovalModule : BaseBBTRoute<DepositMobApprovalDt
                                     // string jsonData = JsonConvert.SerializeObject(jsonObject);
 
                                     // var content = new StringContent(jsonData, Encoding.UTF8, @"application/json");
-                                    await clientGateWay.PostAsync(dodgeGatewayApiServiceResourceUrl, encodedContent);
+                                    await clientGateWay.PostAsync(dodgeGatewayApiServiceUrl + dodgeGatewayApiServiceResourceUrl, encodedContent);
                                 }
 
                             }
